@@ -45,7 +45,8 @@ for (let i = MIN_TRAIN; i < recs.length - 1; i++) {
   const tmp = mkdtempSync(join(tmpdir(), 'pf-'));
   mkdirSync(join(tmp, 'in')); mkdirSync(join(tmp, 'out'));
   writeFileSync(join(tmp, 'in', 'history.ndjson'), lines.slice(0, i + 1).join('\n') + '\n');
-  writeFileSync(join(tmp, 'in', 'task.json'), JSON.stringify({ ...task0, marks: i + 1 }));
+  const later = recs.slice(i + 1).map((r) => r.at);
+  writeFileSync(join(tmp, 'in', 'task.json'), JSON.stringify({ ...task0, marks: i + 1, history_until: recs[i].at, reads: later }));
   execFileSync('node', [mainPath], { env: { ...process.env, MAKEFUN_INPUT_DIR: join(tmp, 'in'), MAKEFUN_OUTPUT_DIR: join(tmp, 'out') } });
   const fc = JSON.parse(readFileSync(join(tmp, 'out', task0.output), 'utf8'));
   const sc = recs.slice(i + 1).filter((r) => r.rows.length).map((r) => score(fc, r));
